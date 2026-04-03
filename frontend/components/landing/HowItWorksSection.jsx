@@ -14,8 +14,8 @@ const donorSteps = [
         <polyline points="10 9 9 9 8 9"></polyline>
       </svg>
     ),
-    title: 'Add Surplus Food',
-    desc: 'Post food details — quantity, type (veg/non-veg), expiry time, and pickup location in under 2 minutes.',
+    title: 'Upload Inventory',
+    desc: 'Add product details like quantity, MRP, and expiry date in minutes.',
   },
   {
     step: '02',
@@ -29,8 +29,8 @@ const donorSteps = [
         <path d="M15 11l-1.5-1.5"></path>
       </svg>
     ),
-    title: 'AI Verification',
-    desc: 'Our AI validates your listing, estimates servings, flags expiry risk, and makes it discoverable to nearby NGOs.',
+    title: 'Get AI Pricing',
+    desc: 'Receive smart pricing and urgency recommendations to maximize value.',
   },
   {
     step: '03',
@@ -40,8 +40,8 @@ const donorSteps = [
         <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
       </svg>
     ),
-    title: 'NGO Gets Notified',
-    desc: 'Nearby NGOs are instantly alerted. They can review details, request the food, and confirm pickup time.',
+    title: 'Sell Faster',
+    desc: 'List inventory for direct sale or auction and connect with verified buyers.',
   },
 ];
 
@@ -56,8 +56,8 @@ const receiverSteps = [
         <line x1="6" y1="10" x2="6" y2="10.01"></line>
       </svg>
     ),
-    title: 'Request Quantity',
-    desc: 'Select a listing and send a request specifying how much your shelter or community needs.',
+    title: 'Browse Deals',
+    desc: 'Explore discounted and near-expiry packaged inventory suited to your needs.',
   },
   {
     step: '02',
@@ -67,8 +67,8 @@ const receiverSteps = [
         <polyline points="22 4 12 14.01 9 11.01"></polyline>
       </svg>
     ),
-    title: 'Donor Accepts',
-    desc: 'The donor reviews and accepts your request. You both get a confirmation with pickup details.',
+    title: 'Compare & Request',
+    desc: 'Check product details, quantity, pricing options, and view seller information.',
   },
   {
     step: '03',
@@ -80,8 +80,8 @@ const receiverSteps = [
         <circle cx="18.5" cy="18.5" r="2.5"></circle>
       </svg>
     ),
-    title: 'Pickup & Distribute',
-    desc: 'Collect the food from the donor location before expiry. Log the pickup and update your distribution history.',
+    title: 'Buy in Bulk',
+    desc: 'Request or purchase stock at heavy liquidation rates safely and securely.',
   },
 ];
 
@@ -163,8 +163,8 @@ export default function HowItWorksSection() {
             <span className="gradient-text">Life-Changing.</span>
           </h2>
           <p className="section-subtitle mx-auto">
-            From food listing to pickup — the entire process takes minutes, not hours.
-            Here's how it works for both sides of the equation.
+            From inventory listing to bulk purchase — the entire process takes minutes.
+            Here's how it works for both sides of the B2B marketplace.
           </p>
         </div>
 
@@ -172,7 +172,7 @@ export default function HowItWorksSection() {
         <div className="grid lg:grid-cols-2 gap-8">
           <div className="reveal reveal-delay-1">
             <ProcessTrack
-              title="For Donors"
+              title="For Seller / Industry"
               icon={
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -184,7 +184,7 @@ export default function HowItWorksSection() {
           </div>
           <div className="reveal reveal-delay-2">
             <ProcessTrack
-              title="For Receivers"
+              title="For Buyer / Wholesaler"
               icon={
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -208,10 +208,10 @@ export default function HowItWorksSection() {
           <div className="flex flex-col items-center justify-center text-center gap-8">
             <div>
               <h3 className="text-white text-2xl lg:text-3xl font-bold mb-3">
-                Ready to make a difference?
+                Ready to improve supply efficiency?
               </h3>
               <p className="text-white/70 max-w-lg mx-auto">
-                Join 1,200+ donors and 380+ NGOs already using AnnSeva to fight food waste and hunger across 85+ cities.
+                Join hundreds of manufacturers and wholesalers already using ClearStock to liquidate and save on B2B inventory.
               </p>
             </div>
           </div>

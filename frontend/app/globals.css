@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  --primary: #E63327;
-  --primary-dark: #C2211C;
-  --primary-light: #FF6347;
-  --primary-pale: #FFF5F5;
+  --primary: #10B981;
+  --primary-dark: #059669;
+  --primary-light: #34D399;
+  --primary-pale: #ECFDF5;
 }
 
 @tailwind base;
@@ -37,7 +37,7 @@ body {
   background: #f1f1f1;
 }
 ::-webkit-scrollbar-thumb {
-  background: #E84E0F;
+  background: #10B981;
   border-radius: 3px;
 }
 
@@ -177,7 +177,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #E63327;
+  background: #10B981;
   color: white;
   padding: 14px 32px;
   border-radius: 50px;
@@ -185,7 +185,7 @@ body {
   font-size: 0.95rem;
   text-decoration: none;
   transition: all 0.3s ease;
-  border: 2px solid #E63327;
+  border: 2px solid #10B981;
   cursor: pointer;
   letter-spacing: 0.01em;
   position: relative;
@@ -211,8 +211,8 @@ body {
 }
 
 .btn-primary:hover {
-  background: #C2211C;
-  border-color: #C2211C;
+  background: #059669;
+  border-color: #059669;
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(230, 51, 39, 0.35);
 }
@@ -245,19 +245,19 @@ body {
   align-items: center;
   gap: 8px;
   background: transparent;
-  color: #E63327;
+  color: #10B981;
   padding: 13px 30px;
   border-radius: 50px;
   font-weight: 600;
   font-size: 0.9rem;
   text-decoration: none;
   transition: all 0.3s ease;
-  border: 2px solid #E63327;
+  border: 2px solid #10B981;
   cursor: pointer;
 }
 
 .btn-outline-dark:hover {
-  background: #E63327;
+  background: #10B981;
   color: white;
   transform: translateY(-2px);
 }
@@ -268,7 +268,7 @@ body {
   align-items: center;
   gap: 8px;
   background: #FFF5F5;
-  color: #E63327;
+  color: #10B981;
   padding: 6px 16px;
   border-radius: 50px;
   font-size: 0.8rem;
@@ -311,7 +311,7 @@ body {
   left: 0;
   right: 0;
   height: 3px;
-  background: #E63327;
+  background: #10B981;
   transform: scaleX(0);
   transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   transform-origin: left;
@@ -341,7 +341,7 @@ body {
 }
 
 .service-card:hover .service-icon-wrap {
-  background: #E63327;
+  background: #10B981;
 }
 
 /* ===== STATS ===== */
@@ -358,13 +358,13 @@ body {
   top: 20%;
   height: 60%;
   width: 1px;
-  background: rgba(232, 78, 15, 0.2);
+  background: rgba(16, 185, 129, 0.2);
 }
 
 .stat-number {
   font-size: clamp(2.2rem, 4vw, 3.5rem);
   font-weight: 900;
-  background: linear-gradient(135deg, #E63327, #FF6347);
+  background: linear-gradient(135deg, #10B981, #34D399);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -385,7 +385,7 @@ body {
   width: 40px;
   height: 40px;
   min-width: 40px;
-  background: #E63327;
+  background: #10B981;
   color: white;
   border-radius: 50%;
   display: flex;
@@ -424,7 +424,7 @@ body {
   left: 0;
   right: 0;
   height: 3px;
-  background: #E63327;
+  background: #10B981;
   transform: scaleX(0);
   transition: transform 0.4s ease;
 }
@@ -457,7 +457,7 @@ body {
 .ai-feature-chip:hover {
   background: #FFF5F5;
   border-color: #E63327;
-  color: #E63327;
+  color: #10B981;
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(230, 51, 39, 0.1);
 }
@@ -502,12 +502,12 @@ body {
   align-items: center;
   justify-content: center;
   margin-bottom: 16px;
-  color: #E63327;
+  color: #10B981;
   transition: all 0.3s ease;
 }
 
 .ai-card:hover .ai-card-icon {
-  background: #E63327;
+  background: #10B981;
   color: white;
 }
 
@@ -602,7 +602,7 @@ body {
 
 /* ===== GRADIENT TEXT ===== */
 .gradient-text {
-  background: linear-gradient(135deg, #E63327 0%, #FF6347 60%, #FF8C69 100%);
+  background: linear-gradient(135deg, #10B981 0%, #34D399 60%, #6EE7B7 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

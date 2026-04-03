@@ -1,14 +1,14 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'AnnSeva — Connecting Surplus Food With Those Who Need It Most',
+  title: 'ClearStock — Turn Expiring Inventory into Revenue',
   description:
-    'AnnSeva is a real-time food donation platform that connects restaurants, hotels, and mess facilities with NGOs, shelters, and volunteers — reducing food waste and fighting hunger in your community.',
-  keywords: 'food donation, NGO, surplus food, food waste, hunger, community, AnnSeva',
+    'ClearStock is a smart B2B liquidation platform that connects manufacturers and distributors with wholesalers — recovering value from surplus and near-expiry packaged stock.',
+  keywords: 'B2B liquidation, surplus inventory, wholesale, fast moving consumer goods, FMCG, ClearStock',
   openGraph: {
-    title: 'AnnSeva — Save Food. Serve Lives.',
+    title: 'ClearStock — Turn Expiring Inventory into Revenue',
     description:
-      'Real-time food donation platform connecting donors with NGOs and communities in need.',
+      'Smart B2B liquidation platform connecting surplus inventory with wholesale buyers.',
     type: 'website',
   },
 };

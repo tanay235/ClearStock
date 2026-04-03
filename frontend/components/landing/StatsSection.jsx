@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 const stats = [
-  { value: 52000, suffix: '+', label: 'Meals Saved' },
-  { value: 1200,  suffix: '+', label: 'Food Donors' },
-  { value: 380,   suffix: '+', label: 'NGO Partners' },
+  { value: 4.2, suffix: 'M+', label: 'Value Recovered' },
+  { value: 1200,  suffix: '+', label: 'Active Sellers' },
+  { value: 380,   suffix: '+', label: 'Wholesale Buyers' },
   { value: 85,    suffix: '+', label: 'Cities Active' },
 ];
 

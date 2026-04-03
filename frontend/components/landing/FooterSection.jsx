@@ -2,24 +2,21 @@
 
 const footerLinks = {
   Platform: [
-    { label: 'Donate Food', href: '#' },
-    { label: 'Find Food', href: '#' },
-    { label: 'Live Map', href: '#' },
-    { label: 'AI Features', href: '#' },
-    { label: 'Dashboard', href: '#' },
+    { label: 'Sell Inventory', href: '#' },
+    { label: 'Browse Deals', href: '#' },
+    { label: 'AI Pricing', href: '#' },
+    { label: 'Seller Dashboard', href: '#' },
   ],
-  'For NGOs': [
-    { label: 'Register NGO', href: '#' },
-    { label: 'Browse Listings', href: '#' },
-    { label: 'Request Food', href: '#' },
-    { label: 'Track Pickups', href: '#' },
+  'For Wholesalers': [
+    { label: 'Register as Buyer', href: '#' },
+    { label: 'Bulk Orders', href: '#' },
+    { label: 'Request Stock', href: '#' },
   ],
   Company: [
-    { label: 'About AnnSeva', href: '#about' },
+    { label: 'About ClearStock', href: '#about' },
     { label: 'How It Works', href: '#how-it-works' },
     { label: 'Impact', href: '#why-it-matters' },
     { label: 'Contact Us', href: '#' },
-    { label: 'Privacy Policy', href: '#' },
   ],
 };
 
@@ -42,18 +39,18 @@ export default function FooterSection() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-6">
           <div>
             <h3 className="text-2xl lg:text-3xl font-bold text-white mb-2">
-              Save Food. Serve Lives.
+              Turn Expiring Inventory into Revenue.
             </h3>
             <p className="text-white/60 text-base">
-              Join the movement to eliminate food waste and fight hunger — one meal at a time.
+              Join the marketplace to liquidate surplus packaged stock and buy bulk inventory securely.
             </p>
           </div>
           <div className="flex gap-3 flex-shrink-0">
             <a href="#" className="btn-primary px-7 py-3.5 shadow-lg shadow-primary/30">
-              Donate Food
+              Sell Inventory
             </a>
             <a href="#" className="btn-outline px-7 py-3.5 bg-white/5 border-white/20 text-white hover:bg-white hover:text-dark">
-              Find Food
+              Browse Deals
             </a>
           </div>
         </div>
@@ -77,13 +74,12 @@ export default function FooterSection() {
                 </svg>
               </div>
               <span className="text-xl font-extrabold tracking-tight">
-                Ann<span className="text-primary">Seva</span>
+                Clear<span className="text-primary">Stock</span>
               </span>
             </a>
 
             <p className="text-white/60 text-sm leading-relaxed mb-6 max-w-xs">
-              A real-time food donation platform connecting surplus food from restaurants, hotels,
-              and mess facilities to NGOs, shelters, and communities in need — powered by AI.
+              A smart liquidation platform designed to help industries recover value from near-expiry and surplus packaged inventory using B2B matching and pricing intelligence.
             </p>
 
             {/* Social Links */}
@@ -102,7 +98,7 @@ export default function FooterSection() {
 
             {/* Contact */}
             <div className="mt-6 space-y-2 text-sm text-white/50">
-              <p>📧 hello@annseva.in</p>
+              <p>📧 hello@clearstock.in</p>
               <p>📍 Jabalpur, Madhya Pradesh, India</p>
             </div>
           </div>
@@ -131,7 +127,7 @@ export default function FooterSection() {
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-white/40 text-sm">
-            © 2025 AnnSeva. All rights reserved. Built with ❤️ for HackByte 4.0
+            © {new Date().getFullYear()} ClearStock. All rights reserved. Built for B2B.
           </p>
           <div className="flex items-center gap-6">
             <a href="#" className="footer-link text-xs">Terms of Service</a>
