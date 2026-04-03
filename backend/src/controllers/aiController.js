@@ -2,18 +2,27 @@ const { checkFoodSafety } = require("../services/aiService");
 
 async function runFoodSafetyCheck(req, res, next) {
   try {
-    const { foodName, preparedAt, foodType, notes, imageBase64, imageMimeType } = req.body || {};
+    const {
+      foodName,
+      expiryDate,
+      originalPrice,
+      category,
+      notes,
+      imageBase64,
+      imageMimeType,
+    } = req.body || {};
 
-    if (!foodName || !preparedAt) {
+    if (!foodName || !expiryDate || !originalPrice) {
       return res.status(400).json({
-        message: "foodName and preparedAt are required.",
+        message: "foodName, expiryDate and originalPrice are required.",
       });
     }
 
     const result = await checkFoodSafety({
       foodName,
-      preparedAt,
-      foodType,
+      expiryDate,
+      originalPrice,
+      category,
       notes,
       imageBase64,
       imageMimeType,

@@ -6,17 +6,24 @@ const {
 
 function createFoodListing(req, res, next) {
   try {
-    const { foodName, quantity, foodType, preparedAt, location, aiResult } = req.body || {};
+    const { foodName, quantity, expiryDate, originalPrice, location, aiResult, yourPrice } =
+      req.body || {};
 
-    if (!foodName || !quantity || !foodType || !preparedAt || !location) {
+    if (!foodName || !quantity || !expiryDate || !originalPrice || !location) {
       return res.status(400).json({
-        message: "foodName, quantity, foodType, preparedAt and location are required.",
+        message: "foodName, quantity, expiryDate, originalPrice and location are required.",
       });
     }
 
-    if (!aiResult || aiResult.isSafe !== true) {
+    if (!aiResult) {
       return res.status(400).json({
-        message: "Publish blocked: AI result must be safe.",
+        message: "Publish blocked: run price suggestion first.",
+      });
+    }
+
+    if (!yourPrice || Number(yourPrice) <= 0) {
+      return res.status(400).json({
+        message: "yourPrice is required and must be greater than 0.",
       });
     }
 

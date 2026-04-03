@@ -5,8 +5,9 @@ const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models
 
 async function requestGeminiFoodSafetyAnalysis({
   foodName,
-  foodType,
-  preparedAt,
+  category,
+  expiryDate,
+  originalPrice,
   notes,
   imageBase64,
   imageMimeType,
@@ -19,28 +20,29 @@ async function requestGeminiFoodSafetyAnalysis({
   }
 
   const prompt = `
-You are a food safety assistant for donation logistics in India.
+You are a packaged-item safety and pricing assistant for donation logistics in India.
 Return only strict JSON (no markdown or code fences).
 
 Input:
-- Food Name: ${foodName || ""}
-- Food Type: ${foodType || ""}
-- Prepared At (local): ${preparedAt || ""}
+- Item Name: ${foodName || ""}
+- Category: ${category || ""}
+- Expiry Date (local): ${expiryDate || ""}
+- Original Price INR: ${originalPrice || ""}
 - Current Time (local): ${nowIsoString || ""}
 - Storage Notes: ${notes || ""}
 
 Tasks:
-1) Identify or confirm the food name.
-2) Estimate total safe hours from preparation time in normal conditions.
-3) Estimate safe-hour extension if notes indicate refrigeration/cold storage.
-4) Estimate spoilage risk and urgency.
+1) Identify or confirm the item name.
+2) Estimate spoilage risk and urgency using expiry date.
+3) Suggest discount % based on time-to-expiry and condition notes.
+4) Estimate expected sell price in INR from original price and suggested discount.
 5) Provide reason.
 
 JSON schema:
 {
   "detectedFoodName": "string",
-  "baseSafeHours": number,
-  "suggestedStorageExtensionHours": number,
+  "suggestedDiscountPercent": number,
+  "expectedSellPrice": number,
   "spoilageRisk": "Low|Medium|High",
   "urgency": "Low|Medium|High|Do Not Donate",
   "confidence": number,

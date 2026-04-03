@@ -1,24 +1,11 @@
 const { requestGeminiFoodSafetyAnalysis } = require("../config/ai");
 
-const DEFAULT_SAFE_HOURS = 8;
-const SAFE_HOURS_BY_FOOD = [
-  { keywords: ["rabdi", "curd", "yogurt", "milk", "cream"], hours: 6 },
-  { keywords: ["paneer", "chicken", "fish", "egg", "meat"], hours: 8 },
-  { keywords: ["rice", "pulao", "pulav", "dal", "curry", "sabzi"], hours: 10 },
-  { keywords: ["barfi", "besan", "ladoo", "sweet"], hours: 16 },
-  { keywords: ["dry", "roti", "paratha"], hours: 12 },
-];
-
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
-function pickSafeHours(foodName) {
-  const lowerName = String(foodName || "").toLowerCase();
-  const matched = SAFE_HOURS_BY_FOOD.find(item =>
-    item.keywords.some(keyword => lowerName.includes(keyword))
-  );
-  return matched ? matched.hours : DEFAULT_SAFE_HOURS;
+function parseExpiryDateToTimestamp(expiryDate) {
+  return new Date(`${expiryDate}T23:59:59`).getTime();
 }
 
 function parseGeminiJsonFromResponse(payload) {
@@ -42,51 +29,81 @@ function parseGeminiJsonFromResponse(payload) {
   }
 }
 
-function getStorageExtensionFromNotes(notes, baseSafeHours) {
+function getRiskAndUrgency(hoursToExpiry) {
+  if (hoursToExpiry <= 0) {
+    return { spoilageRisk: "High", urgency: "Do Not Donate" };
+  }
+  if (hoursToExpiry <= 24) {
+    return { spoilageRisk: "High", urgency: "High" };
+  }
+  if (hoursToExpiry <= 72) {
+    return { spoilageRisk: "Medium", urgency: "Medium" };
+  }
+  return { spoilageRisk: "Low", urgency: "Low" };
+}
+
+function getDiscountByHoursToExpiry(hoursToExpiry) {
+  if (hoursToExpiry <= 24) {
+    return 80;
+  }
+  if (hoursToExpiry <= 72) {
+    return 65;
+  }
+  if (hoursToExpiry <= 168) {
+    return 55;
+  }
+  if (hoursToExpiry <= 720) {
+    return 45;
+  }
+  if (hoursToExpiry <= 2160) {
+    return 35;
+  }
+  return 25;
+}
+
+function getStorageDiscountBonus(notes) {
   const normalized = String(notes || "").toLowerCase();
   if (!normalized) {
     return 0;
   }
 
-  if (/(frozen|freezer|deep freeze)/.test(normalized)) {
-    return 48;
-  }
-  if (/(fridge|refrigerat|cold storage|chiller)/.test(normalized)) {
-    return Math.max(10, Math.round(baseSafeHours * 1.5));
-  }
-  if (/(insulated|cool box|ice pack)/.test(normalized)) {
-    return 6;
+  if (/(fridge|refrigerat|cold storage|chiller|frozen|freezer)/.test(normalized)) {
+    return 2;
   }
   return 0;
 }
 
-function getRiskAndUrgency(remainingHours) {
-  if (remainingHours <= 0) {
-    return { spoilageRisk: "High", urgency: "Do Not Donate" };
+async function checkFoodSafety({
+  foodName,
+  expiryDate,
+  originalPrice,
+  category,
+  notes,
+  imageBase64,
+  imageMimeType,
+}) {
+  const expiryTimestamp = parseExpiryDateToTimestamp(expiryDate);
+  if (Number.isNaN(expiryTimestamp)) {
+    const error = new Error("Invalid expiryDate value.");
+    error.status = 400;
+    throw error;
   }
-  if (remainingHours <= 4) {
-    return { spoilageRisk: "Medium", urgency: "High" };
-  }
-  if (remainingHours <= 8) {
-    return { spoilageRisk: "Low", urgency: "Medium" };
-  }
-  return { spoilageRisk: "Low", urgency: "Low" };
-}
 
-async function checkFoodSafety({ foodName, preparedAt, foodType, notes, imageBase64, imageMimeType }) {
-  const preparedTimestamp = new Date(preparedAt).getTime();
-  if (Number.isNaN(preparedTimestamp)) {
-    const error = new Error("Invalid preparedAt value.");
+  const numericOriginalPrice = Number(originalPrice);
+  if (!Number.isFinite(numericOriginalPrice) || numericOriginalPrice <= 0) {
+    const error = new Error("Invalid originalPrice value.");
     error.status = 400;
     throw error;
   }
 
   const now = Date.now();
-  const elapsedHours = Math.max(0, (now - preparedTimestamp) / (1000 * 60 * 60));
+  const hoursToExpiry = (expiryTimestamp - now) / (1000 * 60 * 60);
+  const safeHoursLeft = Math.max(0, hoursToExpiry);
+  const isSafe = safeHoursLeft > 0;
 
   let detectedFoodName = foodName;
-  let baseSafeHours = pickSafeHours(foodName);
-  let aiSuggestedStorageExtensionHours = 0;
+  let aiDiscountPercent = null;
+  let aiExpectedSellPrice = null;
   let aiReason = "";
   let aiConfidence = 0.65;
   let source = "fallback-rules";
@@ -94,8 +111,9 @@ async function checkFoodSafety({ foodName, preparedAt, foodType, notes, imageBas
   try {
     const rawGeminiResponse = await requestGeminiFoodSafetyAnalysis({
       foodName,
-      foodType,
-      preparedAt,
+      category,
+      expiryDate,
+      originalPrice: numericOriginalPrice,
       notes,
       imageBase64,
       imageMimeType,
@@ -105,11 +123,11 @@ async function checkFoodSafety({ foodName, preparedAt, foodType, notes, imageBas
     const parsed = parseGeminiJsonFromResponse(rawGeminiResponse);
     if (parsed) {
       detectedFoodName = parsed.detectedFoodName || detectedFoodName;
-      if (typeof parsed.baseSafeHours === "number") {
-        baseSafeHours = clamp(parsed.baseSafeHours, 1, 96);
+      if (typeof parsed.suggestedDiscountPercent === "number") {
+        aiDiscountPercent = clamp(parsed.suggestedDiscountPercent, 5, 90);
       }
-      if (typeof parsed.suggestedStorageExtensionHours === "number") {
-        aiSuggestedStorageExtensionHours = clamp(parsed.suggestedStorageExtensionHours, 0, 96);
+      if (typeof parsed.expectedSellPrice === "number") {
+        aiExpectedSellPrice = clamp(parsed.expectedSellPrice, 0, numericOriginalPrice);
       }
       if (typeof parsed.confidence === "number") {
         aiConfidence = clamp(parsed.confidence, 0.1, 0.99);
@@ -121,26 +139,39 @@ async function checkFoodSafety({ foodName, preparedAt, foodType, notes, imageBas
     source = "fallback-rules";
   }
 
-  const notesStorageExtensionHours = getStorageExtensionFromNotes(notes, baseSafeHours);
-  const totalSafeHours = clamp(
-    baseSafeHours + Math.max(aiSuggestedStorageExtensionHours, notesStorageExtensionHours),
-    1,
-    168
+  const fallbackDiscount = clamp(
+    getDiscountByHoursToExpiry(Math.max(0, hoursToExpiry)) - getStorageDiscountBonus(notes),
+    20,
+    90
   );
 
-  const remainingHours = Math.max(0, totalSafeHours - elapsedHours);
-  const isSafe = remainingHours > 0;
-  const { spoilageRisk, urgency } = getRiskAndUrgency(remainingHours);
+  const modelDiscount =
+    typeof aiDiscountPercent === "number" ? clamp(aiDiscountPercent, 20, 90) : null;
+  const baselineDiscount = getDiscountByHoursToExpiry(Math.max(0, hoursToExpiry));
+  let suggestedDiscountPercent =
+    modelDiscount !== null ? Math.max(modelDiscount, baselineDiscount) : fallbackDiscount;
 
-  const reasons = [];
-  reasons.push(`Estimated total safe window: ${totalSafeHours} hours from preparation.`);
-  if (notesStorageExtensionHours > 0) {
-    reasons.push(
-      `Storage note detected ("${notes}"), extension applied (+${notesStorageExtensionHours}h).`
-    );
+  // When Gemini is unavailable, be extra conservative so sell price does not stay too high.
+  if (source !== "gemini") {
+    suggestedDiscountPercent = clamp(suggestedDiscountPercent + 10, 20, 90);
+  }
+
+  const expectedSellPrice =
+    typeof aiExpectedSellPrice === "number"
+      ? Number(aiExpectedSellPrice.toFixed(2))
+      : Number((numericOriginalPrice * (1 - suggestedDiscountPercent / 100)).toFixed(2));
+
+  const { spoilageRisk, urgency } = getRiskAndUrgency(hoursToExpiry);
+
+  const reasonParts = [];
+  reasonParts.push(
+    `Expiry-driven pricing used: ${Number(Math.max(0, hoursToExpiry).toFixed(1))}h left to expiry.`
+  );
+  if (notes) {
+    reasonParts.push(`Storage notes considered: "${notes}".`);
   }
   if (aiReason) {
-    reasons.push(aiReason);
+    reasonParts.push(aiReason);
   }
 
   return {
@@ -148,15 +179,15 @@ async function checkFoodSafety({ foodName, preparedAt, foodType, notes, imageBas
     status: isSafe ? "Safe" : "Unsafe",
     detectedFoodName,
     spoilageRisk,
-    estimatedExpiryHours: Number(remainingHours.toFixed(1)),
-    estimatedExpiryAt: new Date(now + remainingHours * 60 * 60 * 1000).toISOString(),
+    estimatedExpiryHours: Number(safeHoursLeft.toFixed(1)),
+    estimatedExpiryAt: new Date(expiryTimestamp).toISOString(),
     confidence: Number(aiConfidence.toFixed(2)),
     urgency,
-    baseSafeHours,
-    storageExtensionHours: Math.max(aiSuggestedStorageExtensionHours, notesStorageExtensionHours),
-    totalSafeHours,
+    suggestedDiscountPercent: Number(suggestedDiscountPercent.toFixed(1)),
+    expectedSellPrice,
+    originalPrice: numericOriginalPrice,
     source,
-    reason: reasons.join(" "),
+    reason: reasonParts.join(" "),
   };
 }
 

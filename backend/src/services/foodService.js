@@ -1,8 +1,8 @@
 const listings = [];
 
 function createListing(payload) {
-  if (!payload?.aiResult?.isSafe) {
-    const error = new Error("Food cannot be published unless AI marks it safe.");
+  if (!payload?.aiResult) {
+    const error = new Error("Item cannot be published before AI price suggestion.");
     error.status = 400;
     throw error;
   }
@@ -11,8 +11,10 @@ function createListing(payload) {
     id: payload.id || `food_${Date.now()}_${Math.floor(Math.random() * 9999)}`,
     foodName: payload.foodName,
     quantity: Number(payload.quantity),
-    foodType: payload.foodType,
-    preparedAt: payload.preparedAt,
+    category: payload.category || "",
+    expiryDate: payload.expiryDate,
+    originalPrice: Number(payload.originalPrice),
+    yourPrice: Number(payload.yourPrice),
     location: payload.location,
     notes: payload.notes || "",
     imageName: payload.imageName || "",

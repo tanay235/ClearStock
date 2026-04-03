@@ -1,0 +1,29 @@
+:root {
+  color-scheme: light;
+  --bg: #f5f7ef;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --muted: #475569;
+  --brand: #0e9f6e;
+  --brand-strong: #0b7c57;
+  --accent: #f59e0b;
+  --danger: #dc2626;
+  --line: #dbe3dd;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Sora", "Manrope", "Avenir Next", "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+a {
+  color: inherit;
+}
