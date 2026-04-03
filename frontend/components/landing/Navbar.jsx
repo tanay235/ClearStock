@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -19,7 +20,7 @@ export default function Navbar() {
 
   const navLinks = [
     { label: 'Home', href: '#home' },
-    { label: 'About', href: '#about' },
+    { label: 'About Us', href: '#about' },
     { label: 'How It Works', href: '#how-it-works' },
     { label: 'Why It Matters', href: '#why-it-matters' },
   ];
@@ -51,27 +52,27 @@ export default function Navbar() {
                 isHero && !scrolled ? 'text-white' : 'text-dark'
               }`}
             >
-              Ann<span className="text-primary">Seva</span>
+              Clear<span className="text-primary">Stock</span>
             </span>
           </a>
 
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
                 className={`nav-link ${isHero && !scrolled ? 'nav-link-hero' : ''}`}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
 
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center gap-3">
-            <a
-              href="#"
+            <Link
+              href="/login"
               className={`font-semibold text-sm transition-colors duration-300 px-4 py-2 rounded-full ${
                 isHero && !scrolled
                   ? 'text-white hover:text-white/80'
@@ -79,10 +80,10 @@ export default function Navbar() {
               }`}
             >
               Login
-            </a>
-            <a href="#" className="btn-primary text-sm px-6 py-3">
+            </Link>
+            <Link href="/signup" className="btn-primary text-sm px-6 py-3">
               Get Started →
-            </a>
+            </Link>
           </div>
 
           {/* Mobile Hamburger */}
@@ -103,7 +104,7 @@ export default function Navbar() {
         <div className={`mobile-menu lg:hidden ${menuOpen ? 'open' : ''}`}>
           <div className={`pb-4 pt-2 ${scrolled ? 'bg-white' : 'bg-dark/90 backdrop-blur-lg'} rounded-b-2xl`}>
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
@@ -112,15 +113,15 @@ export default function Navbar() {
                 }`}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
             <div className="flex gap-3 px-6 pt-3">
-              <a href="#" className={`text-sm font-semibold px-4 py-2.5 rounded-full ${scrolled ? 'text-dark' : 'text-white'}`}>
+              <Link href="/login" onClick={() => setMenuOpen(false)} className={`text-sm font-semibold px-4 py-2.5 rounded-full ${scrolled ? 'text-dark' : 'text-white'}`}>
                 Login
-              </a>
-              <a href="#" className="btn-primary text-sm px-5 py-2.5">
+              </Link>
+              <Link href="/signup" onClick={() => setMenuOpen(false)} className="btn-primary text-sm px-5 py-2.5">
                 Get Started
-              </a>
+              </Link>
             </div>
           </div>
         </div>

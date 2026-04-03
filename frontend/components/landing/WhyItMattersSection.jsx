@@ -4,55 +4,55 @@ import { useEffect, useRef } from 'react';
 
 const impactItems = [
   {
-    stat: '40%',
-    statLabel: 'of food produced is wasted',
-    title: 'Reduce Food Waste',
+    stat: 'Reduce',
+    statLabel: 'Waste',
+    title: 'Reduce Waste',
     description:
-      'India wastes over 68 million tonnes of food every year — enough to feed every hungry person in the country. AnnSeva intercepts this waste before it reaches the landfill.',
-    color: '#16A34A',
+      'Prevent usable packaged products from being discarded unnecessarily. ClearStock intercepts surplus stock before it turns into dead inventory.',
+    color: '#10B981',
+    bg: '#ECFDF5',
+    border: '#A7F3D0',
+  },
+  {
+    stat: 'Recover',
+    statLabel: 'Value',
+    title: 'Recover Value',
+    description:
+      'Help industries convert dead or slow-moving stock into revenue. Regain capital that would otherwise be lost to expiry write-offs.',
+    color: '#059669',
     bg: '#F0FDF4',
-    border: '#BBF7D0',
+    border: '#86EFAC',
   },
   {
-    stat: '190M',
-    statLabel: 'Indians go to bed hungry',
-    title: 'Help Communities',
+    stat: 'Improve',
+    statLabel: 'Efficiency',
+    title: 'Supply Efficiency',
     description:
-      'Surplus food from restaurants and events reaches shelters, orphanages, and daily-wage workers who need it most — quickly, safely, and with dignity.',
-    color: '#E63327',
-    bg: '#FFF5F5',
-    border: '#FFD0C0',
-  },
-  {
-    stat: '< 15 min',
-    statLabel: 'average response time',
-    title: 'Faster Redistribution',
-    description:
-      'Traditional food redistribution takes hours of phone calls and coordination. With AnnSeva, the average time from listing to NGO response is under 15 minutes.',
-    color: '#7C3AED',
-    bg: '#F5F3FF',
-    border: '#DDD6FE',
+      'Enable faster movement of surplus inventory through a structured B2B channel, connecting supply directly with wholesale demand.',
+    color: '#0F172A',
+    bg: '#F8FAFC',
+    border: '#E2E8F0',
   },
 ];
 
 const testimonials = [
   {
-    name: 'Priya Sharma',
-    role: 'Manager, Hotel Sunrise Bengaluru',
-    quote: 'We used to throw away 50+ meals every day after events. AnnSeva helped us connect with 3 nearby NGOs within the first week. It feels amazing to know that food is going to people who need it.',
-    avatar: 'PS',
+    name: 'Vikram Singh',
+    role: 'Operations Head, FMCG Corp',
+    quote: 'We used to write off lakhs in near-expiry stock every quarter. ClearStock helped us connect with regional wholesalers rapidly. It feels amazing to turn a loss into revenue.',
+    avatar: 'VS',
   },
   {
-    name: 'Rajan Mehta',
-    role: 'Volunteer, Asha Foundation Mumbai',
-    quote: 'Before AnnSeva, finding food for our daily meals was a challenge that took all morning. Now I get notified on my phone and can collect food for 200 people within an hour.',
+    name: 'Rahul Mehta',
+    role: 'Bulk Wholesaler, Pune',
+    quote: 'Before ClearStock, finding discounted bulk inventory was a challenge that took all week. Now I get notified on my phone and can secure truckloads of stock within an hour.',
     avatar: 'RM',
   },
   {
-    name: 'Anita Kapoor',
-    role: 'Chef-Owner, Spice Route Delhi',
-    quote: 'The platform is incredibly easy to use. I post leftover food in 2 minutes, and it is always collected before it expires. My staff feels proud to be part of something like this.',
-    avatar: 'AK',
+    name: 'Anjali Desai',
+    role: 'Distributor, FreshSnacks',
+    quote: 'The platform is incredibly easy to use. I post slow-moving inventory in 2 minutes, and it is always purchased before it expires. Pricing AI is incredibly accurate.',
+    avatar: 'AD',
   },
 ];
 
@@ -86,8 +86,8 @@ export default function WhyItMattersSection() {
             <span className="gradient-text">So Is Our Solution.</span>
           </h2>
           <p className="section-subtitle mx-auto">
-            Food waste and hunger can coexist only because of a missing link — a real-time
-            coordination system. AnnSeva is that link.
+            Dead inventory is a financial drain. ClearStock provides a real-time,
+            structured B2B marketplace to solve it.
           </p>
         </div>
 
@@ -124,20 +124,19 @@ export default function WhyItMattersSection() {
         {/* ── Problem Statement ── */}
         <div
           className="rounded-3xl p-8 lg:p-12 mb-20 reveal"
-          style={{ background: 'linear-gradient(135deg, #FFF8F5 0%, #FFF0EB 100%)', border: '1px solid #FFD0C0' }}
+          style={{ background: 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)', border: '1px solid #E2E8F0' }}
         >
           <div className="max-w-3xl mx-auto text-center">
             <h3 className="text-2xl lg:text-3xl font-bold text-dark mb-5">
-              The Core Problem
+              The Value Leakage Problem
             </h3>
             <p className="text-muted leading-relaxed text-base lg:text-lg">
-              Every day, large amounts of clean, edible food are wasted by restaurants, hotels, and
-              mess facilities — especially after events or daily operations. At the same time, NGOs,
-              shelters, and individuals face difficulty accessing sufficient food for those in need.
-              The core problem is the <strong className="text-dark">lack of a real-time, reliable
-              coordination system</strong> between food donors and recipients. Food often goes to
-              waste not because it is unusable, but because there is no fast, structured way to
-              discover, verify, and distribute it before it expires.
+              Every day, massive amounts of perfectly usable packaged goods sit in warehouses
+              depreciating in value as they near expiry. At the same time, wholesalers and
+              discount retailers are actively searching for bulk deals. The core problem is the 
+              <strong className="text-dark"> lack of a structured, fast B2B liquidation channel</strong>. 
+              Stock often expires and is written off not because there is no demand, but because 
+              there is no efficient way to connect surplus supply with wholesale demand before it's too late.
             </p>
           </div>
         </div>
@@ -162,7 +161,7 @@ export default function WhyItMattersSection() {
                 <div className="flex items-center gap-3">
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                    style={{ background: 'linear-gradient(135deg, #E84E0F, #FF6B35)' }}
+                    style={{ background: 'linear-gradient(135deg, #10B981, #059669)' }}
                   >
                     {t.avatar}
                   </div>

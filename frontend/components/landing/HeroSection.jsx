@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import { useEffect, useRef } from 'react';
 
 export default function HeroSection() {
@@ -26,11 +28,11 @@ export default function HeroSection() {
           loop
           playsInline
           preload="auto"
-          poster="https://images.unsplash.com/photo-1593113565214-80afc4eb3a1f?w=1920&q=80"
+          poster="https://images.unsplash.com/photo-1586528116311-ad8ed7c50a04?w=1920&q=80"
         >
-          {/* Mixkit / Pexels community food sharing videos */}
-          <source src="https://assets.mixkit.co/videos/preview/mixkit-hands-serving-food-to-other-hands-4014-large.mp4" type="video/mp4" />
-          <source src="https://videos.pexels.com/video-files/6980646/6980646-hd_1920_1080_25fps.mp4" type="video/mp4" />
+          {/* Pexels warehouse logistics / inventory videos */}
+          <source src="https://videos.pexels.com/video-files/3163534/3163534-uhd_2560_1440_30fps.mp4" type="video/mp4" />
+          <source src="https://videos.pexels.com/video-files/6169862/6169862-uhd_2560_1440_24fps.mp4" type="video/mp4" />
         </video>
         <div className="hero-overlay" />
       </div>
@@ -44,13 +46,12 @@ export default function HeroSection() {
         <h1
           className="text-white font-extrabold leading-tight mb-6"
           style={{
-            fontSize: 'clamp(2.4rem, 6vw, 5rem)',
+            fontSize: 'clamp(2.4rem, 6vw, 4.5rem)',
             animation: 'fadeUp 0.7s ease-out 0.4s both',
           }}
         >
-          Connecting Surplus Food<br />
-          <span style={{ color: '#FF6347' }}>With Those Who Need</span><br />
-          It Most
+          Turn Expiring Inventory<br />
+          <span style={{ color: '#10B981' }}>Into Revenue</span>
         </h1>
 
         {/* Subheadline */}
@@ -58,22 +59,24 @@ export default function HeroSection() {
           className="text-white/80 text-lg lg:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
           style={{ animation: 'fadeUp 0.7s ease-out 0.6s both' }}
         >
-          Every day, tons of edible food is wasted while thousands go hungry.
-          AnnSeva bridges this gap —{' '}
-          <strong className="text-white">in real time.</strong>
+          A smart B2B marketplace where industries can liquidate near-expiry and surplus packaged stock using AI-powered pricing and buyer discovery.
         </p>
 
-        {/* CTA Buttons — no emojis */}
         <div
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="flex flex-col items-center justify-center gap-6"
           style={{ animation: 'fadeUp 0.7s ease-out 0.8s both' }}
         >
-          <a href="#" id="hero-donate-cta" className="btn-primary text-base px-9 py-4 shadow-lg shadow-primary/30">
-            Donate Food
-          </a>
-          <a href="#" id="hero-find-cta" className="btn-outline text-base px-9 py-4">
-            Find Food
-          </a>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link href="/signup" className="btn-primary text-base px-9 py-4 shadow-lg shadow-primary/30">
+              Sell Inventory
+            </Link>
+            <Link href="/login" className="btn-outline text-base px-9 py-4">
+              Browse Deals
+            </Link>
+          </div>
+          <p className="text-white/60 text-sm font-medium tracking-wide uppercase">
+            Built for manufacturers, distributors, and wholesalers
+          </p>
         </div>
 
         {/* Trust bar removed */}
