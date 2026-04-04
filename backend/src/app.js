@@ -1,8 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 
-const aiRoutes = require("./routes/aiRoutes");
+const authRoutes = require("./routes/authRoutes");
 const foodRoutes = require("./routes/foodRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 
 const app = express();
 
@@ -18,8 +20,10 @@ app.get("/api/health", (_req, res) => {
   res.status(200).json({ ok: true, message: "AnnSeva backend running" });
 });
 
-app.use("/api/ai", aiRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/food", foodRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.use((err, _req, res, _next) => {
   const status = err.status || 500;

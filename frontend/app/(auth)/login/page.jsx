@@ -1,8 +1,38 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../../context/AuthContext';
 
 export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const { login, loading, user, isLoggedIn } = useAuth();
+  const router = useRouter();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isLoggedIn && user) {
+      if (user.role === 'customer') {
+        router.replace('/dashboard/buyer');
+      } else if (user.role === 'seller') {
+        router.replace('/dashboard/seller');
+      }
+    }
+  }, [isLoggedIn, user, router]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    
+    try {
+      await login({ email, password });
+    } catch (err) {
+      setError(err.message || 'Failed to sign in. Please check your credentials.');
+    }
+  };
   return (
     <div className="bg-white rounded-3xl shadow-xl border border-gray-100 flex flex-col lg:flex-row overflow-hidden w-full max-w-5xl lg:h-[650px]">
       
@@ -46,12 +76,21 @@ export default function LoginPage() {
           <p className="text-muted">Enter your details to access your dashboard.</p>
         </div>
 
-        <form className="space-y-6">
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 text-sm font-medium rounded-xl animate-shake">
+            {error}
+          </div>
+        )}
+
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label className="text-sm font-semibold text-dark">Work Email</label>
             <input 
               type="email" 
               placeholder="name@company.com" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
               className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-dark placeholder:text-gray-400"
             />
           </div>
@@ -66,6 +105,9 @@ export default function LoginPage() {
             <input 
               type="password" 
               placeholder="••••••••" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
               className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-dark placeholder:text-gray-400"
             />
           </div>
@@ -75,8 +117,12 @@ export default function LoginPage() {
             <label htmlFor="remember" className="text-sm text-dark cursor-pointer select-none">Remember for 30 days</label>
           </div>
 
-          <button type="submit" className="btn-primary w-full py-4 text-lg justify-center shadow-lg shadow-primary/30 mt-6">
-            Sign In
+          <button 
+            type="submit" 
+            disabled={loading}
+            className="btn-primary w-full py-4 text-lg justify-center shadow-lg shadow-primary/30 mt-6 disabled:opacity-70 disabled:cursor-wait"
+          >
+            {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
 

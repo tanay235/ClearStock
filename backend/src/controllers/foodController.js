@@ -4,7 +4,7 @@ const {
   getListingById,
 } = require("../services/foodService");
 
-function createFoodListing(req, res, next) {
+async function createFoodListing(req, res, next) {
   try {
     const { foodName, quantity, expiryDate, originalPrice, location, aiResult, yourPrice } =
       req.body || {};
@@ -27,23 +27,32 @@ function createFoodListing(req, res, next) {
       });
     }
 
-    const listing = createListing(req.body);
+    const listing = await createListing(req.body);
     return res.status(201).json(listing);
   } catch (error) {
     return next(error);
   }
 }
 
-function getFoodListings(_req, res) {
-  return res.status(200).json(listListings());
+async function getFoodListings(_req, res, next) {
+  try {
+    const listings = await listListings();
+    return res.status(200).json(listings);
+  } catch (error) {
+    return next(error);
+  }
 }
 
-function getFoodListingById(req, res) {
-  const listing = getListingById(req.params.id);
-  if (!listing) {
-    return res.status(404).json({ message: "Listing not found." });
+async function getFoodListingById(req, res, next) {
+  try {
+    const listing = await getListingById(req.params.id);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found." });
+    }
+    return res.status(200).json(listing);
+  } catch (error) {
+    return next(error);
   }
-  return res.status(200).json(listing);
 }
 
 module.exports = {

@@ -3,10 +3,13 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 async function request(path, options = {}) {
   const url = API_BASE_URL ? `${API_BASE_URL}${path}` : path;
 
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
   const response = await fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { "Authorization": `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     },
   });

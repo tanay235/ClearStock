@@ -68,6 +68,15 @@ const inventorySchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: 1000,
+    },
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+      }
     }
   },
   {
@@ -79,5 +88,6 @@ const inventorySchema = new mongoose.Schema(
 inventorySchema.index({ sellerId: 1 });
 inventorySchema.index({ status: 1 });
 inventorySchema.index({ expiryDate: 1 });
+inventorySchema.index({ location: '2dsphere' }); // Enables $geoNear distance sorting
 
 module.exports = mongoose.model('Inventory', inventorySchema);
