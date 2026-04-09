@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 import {
   LayoutDashboard,
   List,
@@ -12,6 +13,7 @@ import {
   Leaf,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -23,6 +25,25 @@ const navLinks = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user, logout, isLoggedIn, loading } = useAuth();
+
+  const userName = useMemo(() => {
+    if (!user) return "Guest";
+    const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+    return fullName || user.organizationName || "User";
+  }, [user]);
+
+  const userEmail = useMemo(() => {
+    return user?.email || "";
+  }, [user]);
+
+  const initials = useMemo(() => {
+    if (!user) return "GU";
+    const first = (user.firstName || userName || "U").trim()[0] || "U";
+    const last = (user.lastName || "").trim()[0] || "";
+    const fromEmail = (user.email || "").trim()[0] || "";
+    return `${first}${last || fromEmail}`.toUpperCase();
+  }, [user, userName]);
 
   return (
     <aside className="fixed top-0 left-0 h-screen w-64 bg-white border-r border-border flex flex-col z-30 shadow-sm">
@@ -71,16 +92,27 @@ export default function Sidebar() {
       <div className="px-3 py-4 border-t border-border space-y-1">
         <div className="flex items-center gap-3 px-3 py-2 mb-1 rounded-xl bg-gray-50">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
-            AR
+            {initials}
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-semibold text-gray-800 truncate">Aryan Sharma</p>
-            <p className="text-[10px] text-gray-400 truncate">aryan@example.com</p>
+            <p className="text-xs font-semibold text-gray-800 truncate">{userName}</p>
+            <p className="text-[10px] text-gray-400 truncate">{userEmail}</p>
           </div>
         </div>
-        <button onClick={() => alert("Logging out...")} className="sidebar-link w-full !text-red-400 hover:!text-red-600 hover:!bg-red-50">
+        <button
+          type="button"
+          disabled={loading}
+          onClick={() => {
+            if (isLoggedIn) {
+              logout();
+            } else {
+              window.location.href = "/login";
+            }
+          }}
+          className="sidebar-link w-full !text-red-400 hover:!text-red-600 hover:!bg-red-50 disabled:opacity-60 disabled:cursor-wait"
+        >
           <LogOut className="w-4 h-4 shrink-0" />
-          Logout
+          {isLoggedIn ? "Logout" : "Login"}
         </button>
       </div>
     </aside>

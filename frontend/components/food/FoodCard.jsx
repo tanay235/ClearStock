@@ -63,18 +63,20 @@ export default function FoodCard({ item, onDelete }) {
                 : (item.location || "Bengaluru")}
             </span>
           </div>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              if (onDelete) onDelete(item);
-            }}
-            className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors text-xs font-semibold shrink-0 shadow-sm"
-            title="Delete Listing"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            Delete
-          </button>
+          {onDelete && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete(item);
+              }}
+              className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors text-xs font-semibold shrink-0 shadow-sm"
+              title="Delete Listing"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Delete
+            </button>
+          )}
         </div>
       </div>
     </div>

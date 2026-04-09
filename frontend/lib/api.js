@@ -5,14 +5,22 @@ async function request(path, options = {}) {
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { "Authorization": `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
-    },
-  });
+  let response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+        ...(options.headers || {}),
+      },
+    });
+  } catch (error) {
+    if (API_BASE_URL) {
+      throw new Error(`Cannot reach backend at ${API_BASE_URL}. Is the backend running?`);
+    }
+    throw new Error("Network request failed.");
+  }
 
   if (!response.ok) {
     let errorMessage = "Request failed";

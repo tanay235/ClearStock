@@ -24,7 +24,7 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
     if (!loading && isLoggedIn && allowedRoles.length > 0) {
       if (!allowedRoles.includes(user?.role)) {
         // Redirect to their own correct dashboard
-        if (user.role === 'customer') {
+        if (user.role === 'buyer' || user.role === 'customer') {
           router.replace('/dashboard/buyer');
         } else if (user.role === 'seller') {
           router.replace('/dashboard/seller');

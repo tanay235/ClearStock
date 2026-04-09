@@ -40,9 +40,10 @@ export function AuthProvider({ children }) {
         setUser(res.user);
         
         // Role-based redirection
-        if (res.user.role === 'customer') {
-          router.push('/dashboard/buyer'); // Maps backend 'customer' to frontend 'buyer' page
-        } else if (res.user.role === 'seller') {
+        const role = res.user.role;
+        if (role === 'buyer' || role === 'customer') {
+          router.push('/dashboard/buyer');
+        } else if (role === 'seller') {
           router.push('/dashboard/seller');
         }
       }
@@ -62,9 +63,10 @@ export function AuthProvider({ children }) {
         setUser(res.user);
         
         // Role-based redirection
-        if (res.user.role === 'customer') {
-          router.push('/dashboard/buyer'); // Maps backend 'customer' to frontend 'buyer' page
-        } else if (res.user.role === 'seller') {
+        const role = res.user.role;
+        if (role === 'buyer' || role === 'customer') {
+          router.push('/dashboard/buyer');
+        } else if (role === 'seller') {
           router.push('/dashboard/seller');
         }
       }

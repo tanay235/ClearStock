@@ -31,6 +31,11 @@ const statusConfig = {
     className: "bg-gray-100 text-gray-600 border border-gray-200",
     dot: "bg-gray-400",
   },
+  cancelled: {
+    label: "Cancelled",
+    className: "bg-gray-100 text-gray-600 border border-gray-200",
+    dot: "bg-gray-400",
+  },
 };
 
 export default function StatusBadge({ status }) {

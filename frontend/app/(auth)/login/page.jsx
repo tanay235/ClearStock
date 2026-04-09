@@ -15,7 +15,7 @@ export default function LoginPage() {
   // Redirect if already logged in
   useEffect(() => {
     if (isLoggedIn && user) {
-      if (user.role === 'customer') {
+      if (user.role === 'buyer' || user.role === 'customer') {
         router.replace('/dashboard/buyer');
       } else if (user.role === 'seller') {
         router.replace('/dashboard/seller');

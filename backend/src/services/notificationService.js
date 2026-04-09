@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
 });
 
 /**
- * Finds nearby customers based on the listing's location and their preferred radius.
+ * Finds nearby buyers based on the listing's location and their preferred radius.
  * Sends both in-app and email notifications.
  */
 async function notifyNearbyUsers(listing) {
@@ -32,13 +32,13 @@ async function notifyNearbyUsers(listing) {
 
     // Radius logic: Users has their own `radiusKm` in their notificationPreferences.
     // MongoDB's $near returns items in meters.
-    // We find all 'customer' role users within their respective radii.
+    // We find all 'buyer' role users within their respective radii.
     // However, to do this efficiently in one query:
     // We use $near with a maximum of e.g. 50km if the user's specific preferences can't be handled in the query easily.
-    // For simplicity in a Hackathon, let's find all customers within 50km and filter by their preferences in memory.
+    // For simplicity in a Hackathon, let's find all buyers within 50km and filter by their preferences in memory.
     
     const potentialUsers = await User.find({
-      role: 'customer',
+      role: 'buyer',
       location: {
         $near: {
           $geometry: {
@@ -59,7 +59,7 @@ async function notifyNearbyUsers(listing) {
       
       const title = `New Listing Nearby: ${listing.productName}`;
       const message = `A new listing for ${listing.productName} is available near you at only ₹${listing.listingPrice}! Item expires in ${Math.ceil((new Date(listing.expiryDate) - new Date()) / (1000 * 60 * 60 * 24))} days.`;
-      const actionUrl = `/dashboard/customer/deal/${listing._id}`;
+      const actionUrl = `/listings/${listing._id}`;
 
       // 1. Create In-App Notification
       notifications.push({

@@ -32,6 +32,13 @@ export async function getInventoryById(id) {
 }
 
 /**
+ * Compatibility alias for listing pages
+ */
+export async function getListingById(id) {
+  return await getInventoryById(id);
+}
+
+/**
  * Delete an inventory listing (seller only)
  */
 export async function deleteInventoryListing(id) {

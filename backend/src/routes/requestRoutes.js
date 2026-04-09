@@ -14,10 +14,10 @@ const router = express.Router();
 // All request routes are protected by JWT
 router.use(protect);
 
-// Customer/Buyer specific
-router.get('/my-requests', authorize('customer'), getBuyerRequests);
-router.post('/', authorize('customer'), createRequest);
-router.delete('/:id', authorize('customer'), cancelRequest);
+// Buyer specific
+router.get('/my-requests', authorize('buyer'), getBuyerRequests);
+router.post('/', authorize('buyer'), createRequest);
+router.delete('/:id', authorize('buyer'), cancelRequest);
 
 // Seller specific
 router.get('/incoming', authorize('seller'), getSellerRequests);
