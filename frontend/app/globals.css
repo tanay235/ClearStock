@@ -84,7 +84,6 @@
     color: hsl(142 76% 28%);
     font-weight: 600;
   }
-}
 /* ===== BASE RESET ===== */
 *, *::before, *::after {
   box-sizing: border-box;

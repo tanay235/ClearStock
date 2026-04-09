@@ -5,9 +5,9 @@ import { Clock, MessageSquare, CheckCircle, XCircle, PackageCheck } from "lucide
 import StatusBadge from "@/components/requests/StatusBadge";
 import { cn } from "@/lib/utils";
 
-export default function RequestCard({ request, onStatusChange, onChatOpen }) {
+export default function RequestCard({ request, onStatusChange }) {
   return (
-    <div className="bg-white rounded-2xl border border-border shadow-sm hover:shadow-md transition-all duration-200 p-5 flex flex-col gap-4 relative group">
+    <div className="bg-white rounded-2xl border border-border shadow-sm hover:shadow-md transition-all duration-200 p-5 flex flex-col gap-4">
       {/* Top row */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-3">
@@ -24,16 +24,7 @@ export default function RequestCard({ request, onStatusChange, onChatOpen }) {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={() => onChatOpen(request)}
-            className="p-2 bg-gray-50 text-gray-400 hover:bg-green-50 hover:text-green-600 rounded-xl transition-all shadow-sm border border-gray-100"
-            title="Chat with Buyer"
-          >
-            <MessageSquare className="w-4 h-4" />
-          </button>
-          <StatusBadge status={request.status} />
-        </div>
+        <StatusBadge status={request.status} />
       </div>
 
       {/* Details */}

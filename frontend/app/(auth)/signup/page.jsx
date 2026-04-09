@@ -1,49 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link       from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../../../context/AuthContext';
 
 export default function SignupPage() {
-  const [role, setRole] = useState('customer'); // Using 'customer' to match backend
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phoneNumber: '',
-    password: '',
-    organizationName: ''
-  });
-  const [error, setError] = useState('');
-  const { register, loading, user, isLoggedIn } = useAuth();
-  const router = useRouter();
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (isLoggedIn && user) {
-      if (user.role === 'customer') {
-        router.replace('/dashboard/buyer');
-      } else if (user.role === 'seller') {
-        router.replace('/dashboard/seller');
-      }
-    }
-  }, [isLoggedIn, user, router]);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    try {
-      await register({ ...formData, role });
-    } catch (err) {
-      setError(err.message || 'Registration failed. Please try again.');
-    }
-  };
+  const [role, setRole] = useState('buyer');
 
   return (
     <div className="bg-white rounded-3xl shadow-xl border border-gray-100 flex flex-col lg:flex-row overflow-hidden w-full max-w-6xl h-auto lg:h-[800px]">
@@ -64,42 +25,30 @@ export default function SignupPage() {
         {/* Role Selector */}
         <div className="flex bg-gray-50 p-1.5 rounded-xl mb-8">
           <button
-            type="button"
-            onClick={() => setRole('customer')}
+            onClick={() => setRole('buyer')}
             className={`flex-1 py-3 px-4 rounded-lg text-sm font-bold transition-all duration-300 ${
-              role === 'customer' ? 'bg-white text-primary shadow-sm' : 'text-muted hover:text-dark'
+              role === 'buyer' ? 'bg-white text-primary shadow-sm' : 'text-muted hover:text-dark'
             }`}
           >
-            Buyer
+            Buyer / Wholesaler
           </button>
           <button
-            type="button"
             onClick={() => setRole('seller')}
             className={`flex-1 py-3 px-4 rounded-lg text-sm font-bold transition-all duration-300 ${
               role === 'seller' ? 'bg-white text-primary shadow-sm' : 'text-muted hover:text-dark'
             }`}
           >
-            Seller
+            Seller / Industry
           </button>
         </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 text-sm font-medium rounded-xl">
-            {error}
-          </div>
-        )}
-
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-dark">First Name</label>
               <input 
                 type="text" 
-                name="firstName"
                 placeholder="John" 
-                value={formData.firstName}
-                onChange={handleChange}
-                required
                 className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-dark placeholder:text-gray-400"
               />
             </div>
@@ -107,76 +56,60 @@ export default function SignupPage() {
               <label className="text-sm font-semibold text-dark">Last Name</label>
               <input 
                 type="text" 
-                name="lastName"
                 placeholder="Doe" 
-                value={formData.lastName}
-                onChange={handleChange}
-                required
                 className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-dark placeholder:text-gray-400"
               />
             </div>
           </div>
 
-          {role === 'seller' && (
-            <div className="space-y-2 animate-fade-in">
-              <label className="text-sm font-semibold text-dark">Organization / Company Name</label>
-              <input 
-                type="text" 
-                name="organizationName"
-                placeholder="Acme Distribution Corp" 
-                value={formData.organizationName}
-                onChange={handleChange}
-                required={role === 'seller'}
-                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-dark placeholder:text-gray-400"
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-dark">Organization / Company Name</label>
+            <input 
+              type="text" 
+              placeholder="Acme Distribution Corp" 
+              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-dark placeholder:text-gray-400"
+            />
+          </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-dark">Email</label>
+            <label className="text-sm font-semibold text-dark">Work Email</label>
             <input 
               type="email" 
-              name="email"
               placeholder="john@acme.com" 
-              value={formData.email}
-              onChange={handleChange}
-              required
               className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-dark placeholder:text-gray-400"
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-dark">Phone Number</label>
-            <input 
-              type="tel" 
-              name="phoneNumber"
-              placeholder="+91 90000 00000" 
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-dark placeholder:text-gray-400"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-dark">GST Number</label>
+              <input 
+                type="text" 
+                placeholder="Optional" 
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-dark placeholder:text-gray-400"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-dark">Phone Number</label>
+              <input 
+                type="tel" 
+                placeholder="+91 90000 00000" 
+                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-dark placeholder:text-gray-400"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-semibold text-dark">Password</label>
             <input 
               type="password" 
-              name="password"
               placeholder="••••••••" 
-              value={formData.password}
-              onChange={handleChange}
-              required
               className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-dark placeholder:text-gray-400"
             />
           </div>
 
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="btn-primary w-full py-4 text-lg justify-center shadow-lg shadow-primary/30 mt-4 outline-none disabled:opacity-70 disabled:cursor-wait transition-all"
-          >
-            {loading ? 'Creating Account...' : `Register as ${role === 'customer' ? 'Buyer' : 'Seller'}`}
+          <button type="submit" className="btn-primary w-full py-4 text-lg justify-center shadow-lg shadow-primary/30 mt-4 outline-none">
+            Register as {role === 'buyer' ? 'Buyer' : 'Seller'}
           </button>
         </form>
 
