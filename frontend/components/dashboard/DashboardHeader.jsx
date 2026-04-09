@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { Bell, LayoutGrid, Plus } from "lucide-react";
+import { Bell, LayoutGrid, Plus, LogOut } from "lucide-react";
 
 import { useAuth } from "@/context/AuthContext";
 
 export default function DashboardHeader({ isBuyer: isBuyerProp } = {}) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const userName = useMemo(() => {
     if (!user) return "there";
@@ -47,6 +47,16 @@ export default function DashboardHeader({ isBuyer: isBuyerProp } = {}) {
           <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
             3
           </span>
+        </button>
+
+        {/* Logout Button */}
+        <button
+          type="button"
+          onClick={logout}
+          className="w-9 h-9 rounded-xl border border-red-100 bg-red-50 hover:bg-red-100 flex items-center justify-center transition-colors shadow-sm text-red-500"
+          title="Logout"
+        >
+          <LogOut className="w-4 h-4" />
         </button>
 
         {resolvedIsBuyer ? (

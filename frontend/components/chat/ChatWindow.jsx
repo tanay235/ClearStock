@@ -1,25 +1,22 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { 
   X, 
   Send, 
   User, 
   Building2, 
   Package, 
-  Clock,
   MoreVertical,
   Check,
   CheckCheck,
   Paperclip,
   Smile,
-  ChevronLeft,
-  MessageSquare
+  MessageSquare,
+  AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import axios from "axios";
-
-const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+import { request as apiRequest } from "@/lib/api";
 
 /**
  * @param {Object} props
@@ -31,37 +28,58 @@ export default function ChatWindow({ request, currentUser, onClose }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
   const messagesEndRef = useRef(null);
 
-  // Determine the other party
-  const isBuyer = currentUser.role === 'customer' || currentUser.role === 'buyer';
-  const otherPartyName = request.sellerName || request.buyerName || "Partner";
-  const otherPartyRole = isBuyer ? "Seller" : "Buyer";
-  const otherPartyId = isBuyer ? request.sellerId : request.buyerId;
+  // Robust data extraction with ID normalization
+  const isBuyer = useMemo(() => {
+    return currentUser?.role === 'customer' || currentUser?.role === 'buyer';
+  }, [currentUser]);
 
-  // Fetch messages from backend
+  const otherParty = useMemo(() => {
+    return isBuyer ? request.sellerId : request.buyerId;
+  }, [isBuyer, request]);
+
+  const otherPartyName = useMemo(() => {
+    if (!otherParty) return "Partner";
+    return otherParty.organizationName || 
+           `${otherParty.firstName || ""} ${otherParty.lastName || ""}`.trim() || 
+           otherParty.email || 
+           "Partner";
+  }, [otherParty]);
+
+  const productName = useMemo(() => {
+    return request.inventoryId?.productName || request.productName || "Inventory Item";
+  }, [request]);
+
+  const otherPartyId = useMemo(() => {
+    // Force to string to prevent object-serialization issues during POST
+    const rawId = otherParty?._id || otherParty?.id || otherParty;
+    return rawId ? String(rawId) : null;
+  }, [otherParty]);
+
+  const requestId = useMemo(() => {
+    const rawId = request._id || request.id;
+    return rawId ? String(rawId) : null;
+  }, [request]);
+
   const fetchMessages = async () => {
+    if (!requestId) return;
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_URL}/api/chat/${request.id || request._id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (response.data.success) {
-        setMessages(response.data.data);
+      const response = await apiRequest(`/api/chat/${requestId}`);
+      // The backend returns { success: true, data: [...] }
+      if (response && response.success) {
+        setMessages(response.data || []);
       }
-    } catch (error) {
-      console.error("Failed to fetch messages:", error);
-      // Fallback to mock messages if API fails
+    } catch (err) {
+      console.error("Failed to fetch messages:", err);
       if (messages.length === 0) {
-        setMessages([
-          {
-            id: 1,
-            senderId: "system",
-            text: `Conversation started regarding ${request.productName}`,
-            createdAt: new Date().toISOString(),
-            isRead: true
-          }
-        ]);
+        setMessages([{
+          _id: "system-1",
+          senderId: "system",
+          text: `Conversation regarding ${productName}`,
+          createdAt: new Date().toISOString(),
+        }]);
       }
     } finally {
       setIsLoading(false);
@@ -70,13 +88,10 @@ export default function ChatWindow({ request, currentUser, onClose }) {
 
   useEffect(() => {
     fetchMessages();
-    
-    // Poll for new messages every 5 seconds
     const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
-  }, [request.id || request._id]);
+  }, [requestId]);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -85,107 +100,105 @@ export default function ChatWindow({ request, currentUser, onClose }) {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    const tempMessage = {
-      id: Date.now(),
-      senderId: currentUser.id || currentUser._id,
-      text: newMessage,
-      createdAt: new Date().toISOString(),
-      isRead: false,
-      isTemp: true
-    };
+    if (!requestId || !otherPartyId) {
+      setError("Chat context is missing. Please close and reopen the chat.");
+      return;
+    }
 
-    setMessages([...messages, tempMessage]);
+    setError("");
+    const textToSend = newMessage;
     setNewMessage("");
 
     try {
-      const token = localStorage.getItem("token");
-      await axios.post(`${API_URL}/api/chat/send`, {
-        requestId: request.id || request._id,
-        receiverId: otherPartyId?._id || otherPartyId,
-        text: tempMessage.text
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
+      await apiRequest('/api/chat/send', {
+        method: 'POST',
+        body: JSON.stringify({
+          requestId,
+          receiverId: otherPartyId,
+          text: textToSend
+        })
       });
-      fetchMessages(); // Refresh messages to get the real one from DB
-    } catch (error) {
-      console.error("Failed to send message:", error);
-      alert("Failed to send message. Please try again.");
+      fetchMessages(); 
+    } catch (err) {
+      console.error("Chat send error:", err);
+      // Capture specific backend error message if available
+      const detailedError = err.message || "Failed to send message.";
+      setError(detailedError);
+      setNewMessage(textToSend); // Restore text so user doesn't lose it
     }
   };
 
   return (
-    <div className="flex flex-col h-[550px] w-full max-w-md bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 animate-fade-up ring-1 ring-black/5">
+    <div className="fixed bottom-6 right-6 z-[200] flex flex-col h-[600px] w-full max-w-md bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden border border-gray-100 animate-fade-up ring-1 ring-black/5">
       {/* Header */}
-      <div className="p-4 border-b border-gray-100 bg-white sticky top-0 z-10 flex items-center justify-between">
+      <div className="p-6 border-b border-gray-100 bg-white sticky top-0 z-10 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 shadow-inner">
-            {isBuyer ? <Building2 className="w-5 h-5" /> : <User className="w-5 h-5" />}
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center text-green-700 shadow-inner">
+            {isBuyer ? <Building2 className="w-6 h-6" /> : <User className="w-6 h-6" />}
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-900 leading-none mb-1">{otherPartyName}</h3>
+            <h3 className="text-base font-black text-gray-900 leading-none mb-1 tracking-tight">{otherPartyName}</h3>
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{otherPartyRole} • Active Now</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{isBuyer ? "Verified Seller" : "Verified Buyer"} • Active</span>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <button className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
-            <MoreVertical className="w-5 h-5 text-gray-400" />
-          </button>
           <button 
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+            className="p-2.5 hover:bg-red-50 hover:text-red-500 rounded-xl transition-all duration-200 text-gray-400"
+            title="Close Chat"
           >
-            <X className="w-5 h-5 text-gray-400" />
+            <X className="w-6 h-6" />
           </button>
         </div>
       </div>
 
-      {/* Request Context Bar */}
-      <div className="px-5 py-3 bg-gray-50/80 border-b border-gray-100 flex items-center justify-between backdrop-blur-sm">
+      {/* Inquiry Context Bar */}
+      <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between backdrop-blur-md">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center shrink-0 shadow-sm">
+          <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center shrink-0 shadow-sm">
             <Package className="w-5 h-5 text-green-600" />
           </div>
           <div className="truncate">
-            <p className="text-[10px] font-bold text-gray-400 uppercase leading-none mb-1">Inquiry for</p>
-            <p className="text-xs font-black text-gray-800 truncate">{request.productName || "Inventory Item"}</p>
+            <p className="text-[9px] font-black text-gray-400 uppercase leading-none mb-1 tracking-widest">Regarding Product</p>
+            <p className="text-sm font-black text-gray-800 truncate leading-none uppercase">{productName}</p>
           </div>
         </div>
         <div className="text-right shrink-0">
-          <p className="text-[11px] font-black text-green-700">₹{request.totalPrice || request.expectedPriceTotal || 0}</p>
-          <p className="text-[9px] font-bold text-gray-400 uppercase">{request.quantity || request.quantityRequested || 0} units</p>
+          <p className="text-xs font-black text-green-700">₹{request.expectedPriceTotal || 0}</p>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{request.quantityRequested || 0} Units</p>
         </div>
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-5 space-y-4 scrollbar-hide bg-gray-50/30">
+      <div className="flex-1 overflow-y-auto p-6 space-y-5 scrollbar-hide bg-gray-50/20">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-full gap-3">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Loading Conversation...</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Connecting to Server...</p>
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center p-6">
-            <div className="w-16 h-16 rounded-3xl bg-green-50 flex items-center justify-center mb-4">
-              <MessageSquare className="w-8 h-8 text-green-200" />
+          <div className="flex flex-col items-center justify-center h-full text-center p-8">
+            <div className="w-20 h-20 rounded-[2.5rem] bg-green-50 flex items-center justify-center mb-5 rotate-3">
+              <MessageSquare className="w-10 h-10 text-green-200" />
             </div>
-            <h4 className="text-sm font-bold text-gray-900">Start a conversation</h4>
-            <p className="text-xs text-gray-500 mt-1 leading-relaxed">Ask questions or discuss pickup details with the {otherPartyRole.toLowerCase()}.</p>
+            <h4 className="text-base font-black text-gray-900 tracking-tight mb-2">Start Direct Negotiation</h4>
+            <p className="text-sm text-gray-500 leading-relaxed font-medium">Message the {isBuyer ? "seller" : "buyer"} to discuss logistics, quality, or final pricing.</p>
           </div>
         ) : (
           messages.map((msg, index) => {
             const senderId = msg.senderId?._id || msg.senderId;
-            const currentUserId = currentUser.id || currentUser._id;
-            const isMe = senderId === currentUserId;
+            const currentUserId = currentUser?.id || currentUser?._id;
+            const isMe = String(senderId) === String(currentUserId);
             const showDate = index === 0 || 
               new Date(messages[index-1].createdAt).toDateString() !== new Date(msg.createdAt).toDateString();
 
             if (senderId === "system") {
                return (
-                  <div key={msg.id || index} className="flex justify-center my-4">
-                     <span className="px-3 py-1 rounded-full bg-gray-100 text-[9px] font-bold text-gray-400 uppercase tracking-widest border border-gray-200/50">
+                  <div key={msg._id || index} className="flex justify-center my-6">
+                     <span className="px-4 py-1.5 rounded-full bg-white text-[10px] font-bold text-gray-400 uppercase tracking-widest border border-gray-100 shadow-sm">
                         {msg.text}
                      </span>
                   </div>
@@ -193,37 +206,37 @@ export default function ChatWindow({ request, currentUser, onClose }) {
             }
 
             return (
-              <div key={msg.id || msg._id || index} className="space-y-2">
+              <div key={msg._id || index} className="space-y-2">
                 {showDate && (
-                  <div className="flex justify-center my-4">
-                    <span className="px-3 py-1 rounded-full bg-white text-[9px] font-bold text-gray-400 uppercase tracking-widest border border-gray-100">
-                      {new Date(msg.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                  <div className="flex justify-center my-6">
+                    <span className="px-4 py-1.5 rounded-full bg-white text-[10px] font-bold text-gray-400 uppercase tracking-widest border border-gray-100 italic shadow-sm">
+                      {new Date(msg.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                   </div>
                 )}
                 <div className={cn(
-                  "flex w-full animate-fade-in",
+                  "flex w-full animate-fade-in transition-all",
                   isMe ? "justify-end" : "justify-start"
                 )}>
                   <div className={cn(
-                    "max-w-[85%] px-4 py-3 rounded-[1.5rem] text-sm shadow-sm transition-all",
+                    "max-w-[85%] px-5 py-3.5 rounded-[1.75rem] text-[15px] shadow-sm",
                     isMe 
-                      ? "bg-green-600 text-white rounded-tr-none shadow-green-100" 
-                      : "bg-white text-gray-800 border border-gray-100 rounded-tl-none shadow-gray-100"
+                      ? "bg-gray-900 text-white rounded-tr-none shadow-gray-200" 
+                      : "bg-white text-gray-800 border border-gray-100 rounded-tl-none font-medium shadow-gray-100"
                   )}>
-                    <p className="leading-relaxed">{msg.text}</p>
+                    <p className="leading-relaxed tracking-tight">{msg.text}</p>
                     <div className={cn(
-                      "flex items-center gap-1 mt-1.5",
+                      "flex items-center gap-1.5 mt-2",
                       isMe ? "justify-end" : "justify-start"
                     )}>
                       <span className={cn(
-                        "text-[9px] font-medium opacity-70",
-                        isMe ? "text-white" : "text-gray-400"
+                        "text-[10px] font-bold",
+                        isMe ? "text-white/50" : "text-gray-400"
                       )}>
                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                       {isMe && (
-                        msg.isRead ? <CheckCheck className="w-3 h-3 text-white/80" /> : <Check className="w-3 h-3 text-white/80" />
+                        msg.isRead ? <CheckCheck className="w-3.5 h-3.5 text-green-400" /> : <Check className="w-3.5 h-3.5 text-white/30" />
                       )}
                     </div>
                   </div>
@@ -236,29 +249,35 @@ export default function ChatWindow({ request, currentUser, onClose }) {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-white border-t border-gray-100">
+      <div className="p-6 bg-white border-t border-gray-100">
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 rounded-2xl flex items-center gap-3 text-xs font-bold text-red-600 uppercase tracking-widest animate-shake border border-red-100">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span className="flex-1">{error}</span>
+          </div>
+        )}
         <form onSubmit={handleSendMessage} className="flex items-center gap-3">
-          <button type="button" className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 shrink-0">
-            <Paperclip className="w-5 h-5" />
+          <button type="button" className="p-3 hover:bg-gray-50 rounded-2xl transition-colors text-gray-300 hover:text-gray-900 shrink-0">
+            <Paperclip className="w-6 h-6" />
           </button>
           <div className="relative flex-1">
             <input
               type="text"
-              placeholder="Type a message..."
+              placeholder="Type your message..."
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              className="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder:text-gray-400 font-medium"
+              className="w-full pl-5 pr-12 py-4 bg-gray-50 border border-transparent rounded-2xl text-[15px] focus:bg-white focus:ring-4 focus:ring-gray-900/5 focus:border-gray-200 outline-none transition-all placeholder:text-gray-400 font-bold"
             />
-            <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-green-600 transition-colors">
-              <Smile className="w-5 h-5" />
+            <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-900 transition-colors">
+              <Smile className="w-6 h-6" />
             </button>
           </div>
           <button 
             type="submit"
-            disabled={!newMessage.trim()}
-            className="w-12 h-12 rounded-2xl bg-green-600 text-white flex items-center justify-center shadow-lg shadow-green-200 hover:bg-green-700 transition-all active:scale-95 disabled:opacity-50 disabled:shadow-none shrink-0"
+            disabled={!newMessage.trim() || !otherPartyId || !requestId}
+            className="w-14 h-14 rounded-2xl bg-gray-900 text-white flex items-center justify-center shadow-xl shadow-gray-200 hover:scale-105 active:scale-95 transition-all disabled:opacity-20 disabled:scale-100 shrink-0"
           >
-            <Send className="w-5 h-5" />
+            <Send className="w-6 h-6" />
           </button>
         </form>
       </div>

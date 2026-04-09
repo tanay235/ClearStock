@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ClipboardList, Clock, Inbox, LayoutGrid, RefreshCw } from "lucide-react";
+import { ClipboardList, Clock, Inbox, LayoutGrid, RefreshCw, MessageCircle } from "lucide-react";
 
 import StatsCard from "@/components/dashboard/StatsCard";
 import FoodCard from "@/components/food/FoodCard";
 import StatusBadge from "@/components/requests/StatusBadge";
+import ChatWindow from "@/components/chat/ChatWindow";
+import { useAuth } from "@/context/AuthContext";
 import { getNearbyDeals } from "@/services/inventoryService";
 import { cancelRequest, getMyRequests } from "@/services/requestService";
 
@@ -15,11 +17,13 @@ function normalizeStatus(status) {
 }
 
 export default function ReceiverDashboard() {
+  const { user } = useAuth();
   const [deals, setDeals] = useState([]);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [busyRequestId, setBusyRequestId] = useState("");
+  const [activeChatRequest, setActiveChatRequest] = useState(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -69,7 +73,7 @@ export default function ReceiverDashboard() {
         value: requests.length,
         icon: ClipboardList,
         color: "purple",
-        trend: `${pendingCount} pending â€¢ ${acceptedCount} accepted`,
+        trend: `${pendingCount} pending • ${acceptedCount} accepted`,
       },
       {
         title: "Pending",
@@ -176,9 +180,9 @@ export default function ReceiverDashboard() {
       <section id="requests" className="pb-10 scroll-mt-8">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-lg font-bold text-gray-900">My Requests</h2>
+            <h2 className="text-lg font-bold text-gray-900 uppercase">My Requests</h2>
             <p className="text-xs text-gray-400 mt-0.5">
-              Track the purchase requests youâ€™ve sent
+              Track the purchase requests you’ve sent
             </p>
           </div>
           <span className="flex h-6 min-w-6 px-2 items-center justify-center rounded-full bg-gray-100 text-gray-700 text-xs font-bold">
@@ -204,9 +208,9 @@ export default function ReceiverDashboard() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-bold text-gray-900 text-sm">{productName}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        Seller Â· {sellerName}
+                      <p className="font-bold text-gray-900 text-sm tracking-tight">{productName}</p>
+                      <p className="text-xs text-gray-500 mt-0.5 font-medium">
+                        Seller • {sellerName}
                       </p>
                     </div>
                     <StatusBadge status={status} />
@@ -214,60 +218,67 @@ export default function ReceiverDashboard() {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
                         Quantity
                       </p>
-                      <p className="text-sm font-semibold text-gray-800">
+                      <p className="text-sm font-black text-gray-800">
                         {req.quantityRequested} {req.unit || "units"}
                       </p>
                     </div>
                     <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
-                        Total
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                        Total Price
                       </p>
-                      <p className="text-sm font-semibold text-gray-800">
-                        â‚¹{req.expectedPriceTotal}
+                      <p className="text-sm font-black text-gray-800">
+                        ₹{req.expectedPriceTotal}
                       </p>
                     </div>
                     {req.pickupDeliveryTime && (
                       <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 col-span-2">
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
                           Pickup / Delivery
                         </p>
-                        <p className="text-sm font-semibold text-gray-800">
+                        <p className="text-sm font-black text-gray-800">
                           {req.pickupDeliveryTime}
                         </p>
                       </div>
                     )}
                     {req.note && (
                       <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 col-span-2">
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
-                          Note
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                          Inquiry Note
                         </p>
-                        <p className="text-sm text-gray-700 leading-snug">{req.note}</p>
+                        <p className="text-xs text-gray-600 leading-snug font-medium italic">"{req.note}"</p>
                       </div>
                     )}
                   </div>
 
                   <div className="flex items-center justify-between gap-3 pt-1">
-                    {listingId ? (
-                      <Link
-                        href={`/listings/${listingId}`}
-                        className="text-xs font-semibold text-green-700 hover:underline"
+                    <div className="flex items-center gap-4">
+                      {listingId && (
+                        <Link
+                          href={`/listings/${listingId}`}
+                          className="text-xs font-bold text-gray-400 hover:text-green-600 transition-colors uppercase tracking-widest"
+                        >
+                          View Details
+                        </Link>
+                      )}
+                      <button 
+                         onClick={() => setActiveChatRequest(req)}
+                         className="flex items-center gap-1.5 text-xs font-bold text-green-600 hover:text-green-700 transition-colors uppercase tracking-widest"
                       >
-                        View deal
-                      </Link>
-                    ) : (
-                      <span className="text-xs text-gray-400">Deal unavailable</span>
-                    )}
+                         <MessageCircle className="w-3.5 h-3.5" />
+                         Chat with Seller
+                      </button>
+                    </div>
 
                     {status === "pending" && (
                       <button
                         onClick={() => handleCancelRequest(req._id)}
                         disabled={busyRequestId === req._id}
-                        className="px-3.5 py-2 rounded-xl text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors disabled:opacity-60 disabled:cursor-wait"
+                        className="px-3.5 py-2 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors disabled:opacity-60 disabled:cursor-wait"
                       >
-                        {busyRequestId === req._id ? "Cancelling..." : "Cancel"}
+                        {busyRequestId === req._id ? "Cancelling..." : "Cancel Request"}
                       </button>
                     )}
                   </div>
@@ -287,6 +298,15 @@ export default function ReceiverDashboard() {
           </div>
         )}
       </section>
+
+      {/* Chat Window Overlay */}
+      {activeChatRequest && (
+        <ChatWindow 
+          request={activeChatRequest}
+          currentUser={user}
+          onClose={() => setActiveChatRequest(null)}
+        />
+      )}
     </div>
   );
 }
